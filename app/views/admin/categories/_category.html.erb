@@ -9,4 +9,8 @@
     <%= category.description %>
   </p>
 
+  <% if action_name !="show"%>
+    <%= link_to "Show this Category", [:admin, category]%>
+    <%= link_to "Edit this category", edit_admin_category_path(category)%>
+    <%end%>
 </div>
