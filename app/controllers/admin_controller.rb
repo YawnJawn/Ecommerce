@@ -1,10 +1,8 @@
 class AdminController < ApplicationController
-  #Any controller that inherits from this controller will use layouts/admin.html.erb
   layout 'admin'
-  #Ensures that admin pages are only accessible by authorized users
   before_action :authenticate_admin!
 
   def index
-
+    @orders = Order.where(fulfilled: false).order(created_at: :desc).take(5)
   end
 end

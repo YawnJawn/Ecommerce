@@ -3,7 +3,11 @@ class Admin::ProductsController < AdminController
 
   # GET /admin/products or /admin/products.json
   def index
-    @admin_products = Product.all
+    if params[:query].present?
+      @pagy, @admin_products = pagy(Product.where("name LIKE ?", "%#{params[:query]}%"))
+    else
+      @pagy, @admin_products = pagy(Product.all)
+    end
   end
 
   # GET /admin/products/1 or /admin/products/1.json
@@ -37,16 +41,16 @@ class Admin::ProductsController < AdminController
   # PATCH/PUT /admin/products/1 or /admin/products/1.json
   def update
     @admin_product = Product.find(params[:id])
-      if @admin_product.update(admin_product_params.reject { |k| k["images"] })
-        if admin_product_params["images"]
-            admin_product_params["images"].each do |image|
-            @admin_product.images.attach(image)
-          end
+    if @admin_product.update(admin_product_params.reject { |k| k["images"] })
+      if admin_product_params["images"]
+        admin_product_params["images"].each do |image|
+          @admin_product.images.attach(image)
         end
-        redirect_to admin_products_path, notice: "Product has been updated"
-      else
-        render :edit, status: :unprocessable_entity
       end
+      redirect_to admin_products_path, notice: "Product updated successfully"
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   # DELETE /admin/products/1 or /admin/products/1.json
@@ -67,6 +71,6 @@ class Admin::ProductsController < AdminController
 
     # Only allow a list of trusted parameters through.
     def admin_product_params
-      params.require(:product).permit(:name, :description, :price, :category_id, :gender, :active, images: [])
+      params.require(:product).permit(:name, :description, :price, :category_id, :active, images: [])
     end
 end
